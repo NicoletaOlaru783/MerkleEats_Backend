@@ -24,32 +24,29 @@ namespace MerkleKitchenApp_V2.Services
             _appSettings = appsettings.Value;
         }
 
-        public bool SendConfirmOrderEmail(string email, string UID)
+        public bool SendConfirmOrderEmail(string email, string UID, string orderType, List<OrderItemCreateDto> orderItem)
         {
             var key = new SendGridClient(_appSettings.ApiKey);
             var linkConfirm = "http://localhost:8080/orderConfirmed/o/" + UID;
             var linkCancel = "http://localhost:8080/OrderCancelled/o/" + UID;
             int index = email.IndexOf('.');
             var firstName = email.Substring(0, index).ToUpper();
-            firstName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(firstName.ToLower());
+            //firstName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(firstName.ToLower());
+            var htmlStart = "<table><tr><th> Product</th><th>Quantity</th></tr>";
+            var htmlMiddle = "";
+            var htmlEnd = "</table>";
+            foreach (var obj in orderItem)
+            {
+                htmlMiddle = htmlMiddle + "<tr><td> " + obj.Name + ": " + obj.Description + "<br><br></td><td>" + obj.Quantity + "<br><br></td></tr>";
+            }
+            var htmlFinal = htmlStart + htmlMiddle + htmlEnd;        
 
             var client = new RestClient("https://api.sendgrid.com/v3/mail/send");
             var request = new RestRequest(Method.POST);
             request.AddHeader("content-type", "application/json");
             request.AddHeader("authorization", "Bearer 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");
-            request.AddParameter("application/json", "{\"from\":{\"email\":\"Merkle@kitchen.merkleinc.agency\",\"name\":\"Merkle Kitchen DK\"},\"personalizations\":[{\"to\":[{\"email\":  \"" + email + "\" }],\"dynamic_template_data\":{\"firstName\":\"" + firstName + "\",\"linkConfirm\":\"" + linkConfirm + "\",\"linkCancel\":\"" + linkCancel + "\"}}],\"template_id\":\"d-9899597d84d54dcfb35dc99a189b5af0\"}", ParameterType.RequestBody);
+            request.AddParameter("application/json", "{\"from\":{\"email\":\"Merkle@kitchen.merkleinc.agency\",\"name\":\"Merkle Kitchen DK\"},\"personalizations\":[{\"to\":[{\"email\":  \"" + email + "\" }],\"dynamic_template_data\":{\"items\":\"" + htmlFinal + "\",\"firstName\":\"" + firstName + "\",\"linkConfirm\":\"" + linkConfirm + "\",\"linkCancel\":\"" + linkCancel + "\", ,\"orderType\":\"" + orderType.ToLower() + "\"}}],\"template_id\":\"d-9899597d84d54dcfb35dc99a189b5af0\"}", ParameterType.RequestBody);
             IRestResponse response = client.Execute(request);
-
-            
-            //var from = new EmailAddress("merkle@em3726.kitchen.merkleinc.agency", "Merkle Kitchen");
-            //var subject = "Please confirm your order";
-            
-            //var text = "Hi, you are almost there, we just need you to confirm your order by clicking the button below.  " + linkConfirm 
-            //            + " . If you changed your mind, you can still cancel your order after you confirmed if it's before 13:00 o'clock, by clicking the button below. " + linkCancel;
-            //var html = "";
-
-            //var msg = MailHelper.CreateSingleEmail(from, new EmailAddress(email), subject, text, html);
-            //await client.SendEmailAsync(msg);
 
             return true;
         }
@@ -68,10 +65,10 @@ namespace MerkleKitchenApp_V2.Services
         {
             var toEmails = new List<EmailAddress>();
             var client = new SendGridClient(_appSettings.ApiKey);
-            var from = new EmailAddress("merkle@em3726.kitchen.merkleinc.agency", "Merkle Kitchen");
-            var subject = "Information about your order";
+            var from = new EmailAddress("Merkle@kitchen.merkleinc.agency", "Merkle Kitchen DK");
+            var subject = "Here's the deal with your meal";
             var text = "Order cancelled";
-            var html = "";
+            var html = "<div> Hi there, <br><br> We write to let you know that your order has been accepted. <br><br> You can pick up your order from the kitchen area any time after 14 o'clock. <br><br> <b>Best regards</b>,<br>The kitchen staff </div>";
 
             foreach (var obj in recipients)
             {
@@ -80,7 +77,7 @@ namespace MerkleKitchenApp_V2.Services
             }
             if(type == 0)
             {
-                text = "Order accepted";
+               html = "Hi there, <br><br> We write to let you know that your order has been accepted. <br><br> You can pick up your order from the kitchen area any time after 14 o'clock. <br><br> <b>Best regards</b>,<br>The kitchen staff";
             }
 
             var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, toEmails, subject, text, html);

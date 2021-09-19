@@ -12,5 +12,6 @@ namespace MerkleKitchenApp_V2.Model
         public string Start { get; set; }
         public string Finish { get; set; }
         public string Message { get; set; }
+        public bool Enabled { get; set; }
     }
 }

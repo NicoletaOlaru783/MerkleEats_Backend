@@ -51,7 +51,7 @@ namespace MerkleKitchenApp_V2.Services
             var guid = Guid.NewGuid().ToString();
             result.UID = guid;
             var orderCreated = await _orderRepo.CreateAsync(result);
-             _emailService.SendConfirmOrderEmail(result.Email, result.UID);
+            // _emailService.SendConfirmOrderEmail(result.Email, result.UID);
 
             return orderCreated;
         }

@@ -48,9 +48,9 @@ namespace MerkleKitchenApp_V2.Controllers
         [AllowAnonymous]
         [HttpPost("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public  bool SendConfirmOrderEmail([FromBody] string email, string UID)
+        public bool SendConfirmOrderEmail(string email, string UID, string orderType, [FromBody] List<OrderItemCreateDto> orderItem)
         {
-             _emailService.SendConfirmOrderEmail(email, UID);
+             _emailService.SendConfirmOrderEmail(email, UID, orderType, orderItem);
             return true;
         }
 
