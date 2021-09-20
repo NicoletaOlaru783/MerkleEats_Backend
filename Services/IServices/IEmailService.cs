@@ -9,8 +9,8 @@ namespace MerkleKitchenApp_V2.Services.IServices
 {
     public interface IEmailService
     {
-        Task SendCustomEmail(Email email);
+        bool SendCustomEmail(Email email);
         bool SendConfirmOrderEmail(string email, string UID, string orderType, List<OrderItemCreateDto> orderItem);
-        Task SendOrderEmail(List<EmailMultipleRecipientsDto> recipients, int type);
+        bool SendOrderEmail(List<EmailMultipleRecipientsDto> recipients, int type);
     }
 }

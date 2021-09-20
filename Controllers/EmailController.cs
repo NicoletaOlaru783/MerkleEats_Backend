@@ -29,20 +29,20 @@ namespace MerkleKitchenApp_V2.Controllers
         [AllowAnonymous]
         [HttpPost("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> SendCustomEmail([FromBody] Email email)
+        public bool SendCustomEmail([FromBody] Email email)
         {
-            await _emailService.SendCustomEmail(email);
-            return Ok();
+            _emailService.SendCustomEmail(email);
+            return true;
         }
 
 
         [AllowAnonymous]
         [HttpPost("[action]/{type:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> SendOrderEmail([FromBody] List<EmailMultipleRecipientsDto> recipients, int type)
+        public bool SendOrderEmail([FromBody] List<EmailMultipleRecipientsDto> recipients, int type)
         {
-            await _emailService.SendOrderEmail(recipients, type);
-            return Ok();
+            _emailService.SendOrderEmail(recipients, type);
+            return true;
         }
 
         [AllowAnonymous]

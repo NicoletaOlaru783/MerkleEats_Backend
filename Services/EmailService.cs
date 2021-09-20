@@ -12,6 +12,7 @@ using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace MerkleKitchenApp_V2.Services
@@ -26,7 +27,6 @@ namespace MerkleKitchenApp_V2.Services
 
         public bool SendConfirmOrderEmail(string email, string UID, string orderType, List<OrderItemCreateDto> orderItem)
         {
-            var key = new SendGridClient(_appSettings.ApiKey);
             var linkConfirm = "http://localhost:8080/orderConfirmed/o/" + UID;
             var linkCancel = "http://localhost:8080/OrderCancelled/o/" + UID;
             int index = email.IndexOf('.');
@@ -44,46 +44,48 @@ namespace MerkleKitchenApp_V2.Services
             var client = new RestClient("https://api.sendgrid.com/v3/mail/send");
             var request = new RestRequest(Method.POST);
             request.AddHeader("content-type", "application/json");
-            request.AddHeader("authorization", "Bearer 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");
-            request.AddParameter("application/json", "{\"from\":{\"email\":\"Merkle@kitchen.merkleinc.agency\",\"name\":\"Merkle Kitchen DK\"},\"personalizations\":[{\"to\":[{\"email\":  \"" + email + "\" }],\"dynamic_template_data\":{\"items\":\"" + htmlFinal + "\",\"firstName\":\"" + firstName + "\",\"linkConfirm\":\"" + linkConfirm + "\",\"linkCancel\":\"" + linkCancel + "\", ,\"orderType\":\"" + orderType.ToLower() + "\"}}],\"template_id\":\"d-9899597d84d54dcfb35dc99a189b5af0\"}", ParameterType.RequestBody);
-            IRestResponse response = client.Execute(request);
+            request.AddHeader("authorization", "Bearer " + _appSettings.ApiKey);
+            request.AddParameter("application/json", "{\"from\":{\"email\":\"Merkle@kitchen.merkleinc.agency\",\"name\":\"Merkle Kitchen DK\"},\"reply_to\":{\"email\":\"dk.canteen@emea.merkleinc.com\",\"name\":\"Merkle Kitchen DK\"},,\"personalizations\":[{\"to\":[{\"email\":  \"" + email + "\" }],\"dynamic_template_data\":{\"items\":\"" + htmlFinal + "\",\"firstName\":\"" + firstName + "\",\"linkConfirm\":\"" + linkConfirm + "\",\"linkCancel\":\"" + linkCancel + "\", ,\"orderType\":\"" + orderType.ToLower() + "\"}}],\"template_id\":\"d-9899597d84d54dcfb35dc99a189b5af0\"}", ParameterType.RequestBody);
+            client.Execute(request);
 
             return true;
         }
 
-        public async Task SendCustomEmail(Email email)
+        public bool SendCustomEmail(Email email)
         {
-            var client = new SendGridClient(_appSettings.ApiKey);
-            var from = new EmailAddress("merkle@em3726.kitchen.merkleinc.agency", "Merkle Kitchen");
+            int index = email.Recipient.IndexOf('.');
+            var firstName = email.Recipient.Substring(0, index).ToUpper();
 
-            var msg = MailHelper.CreateSingleEmail(from, new EmailAddress(email.Recipient), email.Subject, email.Text, email.Html);
-            await client.SendEmailAsync(msg);
-            return;
+            var client = new RestClient("https://api.sendgrid.com/v3/mail/send");
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("content-type", "application/json");
+            request.AddHeader("authorization", "Bearer " + _appSettings.ApiKey);
+            request.AddParameter("application/json", "{\"from\":{\"email\":\"Merkle@kitchen.merkleinc.agency\",\"name\":\"Merkle Kitchen DK\"}, \"reply_to\":{\"email\":\"dk.canteen@emea.merkleinc.com\",\"name\":\"Merkle Kitchen DK\"},\"personalizations\":[{\"to\":[{\"email\":  \"" + email.Recipient + "\" }],\"dynamic_template_data\":{\"firstName\":\"" + firstName + "\",\"subjectLine\":\"" + email.Subject + "\", \"text\":\"" + email.Text + "\"}}],\"template_id\":\"d-01f7475fb35244078094ac9d8a74dc49\"}", ParameterType.RequestBody);
+            client.Execute(request);
+            return true;
         }
 
-        public async Task SendOrderEmail(List<EmailMultipleRecipientsDto> recipients, int type)
+        public bool SendOrderEmail(List<EmailMultipleRecipientsDto> recipients, int type)
         {
-            var toEmails = new List<EmailAddress>();
-            var client = new SendGridClient(_appSettings.ApiKey);
-            var from = new EmailAddress("Merkle@kitchen.merkleinc.agency", "Merkle Kitchen DK");
-            var subject = "Here's the deal with your meal";
-            var text = "Order cancelled";
-            var html = "<div> Hi there, <br><br> We write to let you know that your order has been accepted. <br><br> You can pick up your order from the kitchen area any time after 14 o'clock. <br><br> <b>Best regards</b>,<br>The kitchen staff </div>";
+            string id = "d-734381b76c654b3ebdfddf5d3897bd03";
+            if (type == 1)
+            {
+                id = "d-a1a8e7b79afb4078911ff48da26486dd";
+            }
 
             foreach (var obj in recipients)
             {
-                var newObject = new EmailAddress(obj.Recipient);
-                toEmails.Add(newObject);
-            }
-            if(type == 0)
-            {
-               html = "Hi there, <br><br> We write to let you know that your order has been accepted. <br><br> You can pick up your order from the kitchen area any time after 14 o'clock. <br><br> <b>Best regards</b>,<br>The kitchen staff";
-            }
+                int index = obj.Recipient.IndexOf('.');
+                var firstName = obj.Recipient.Substring(0, index).ToUpper();
 
-            var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, toEmails, subject, text, html);
-            await client.SendEmailAsync(msg);
-
-            return;
+                var client = new RestClient("https://api.sendgrid.com/v3/mail/send");
+                var request = new RestRequest(Method.POST);
+                request.AddHeader("content-type", "application/json");
+                request.AddHeader("authorization", "Bearer " + _appSettings.ApiKey);
+                request.AddParameter("application/json", "{\"from\":{\"email\":\"Merkle@kitchen.merkleinc.agency\",\"name\":\"Merkle Kitchen DK\"}, \"reply_to\":{\"email\":\"dk.canteen@emea.merkleinc.com\",\"name\":\"Merkle Kitchen DK\"},\"personalizations\":[{\"to\":[{\"email\":  \"" + obj.Recipient + "\" }],\"dynamic_template_data\":{\"firstName\":\"" + firstName + "\"}}],\"template_id\":\"" + id + "\"}", ParameterType.RequestBody);
+                client.Execute(request);
+            }
+            return true;
         }
     }
 }
