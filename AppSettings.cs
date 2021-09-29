@@ -9,5 +9,7 @@ namespace MerkleKitchenApp_V2
     {
         public string Secret { get; set; }
         public string ApiKey { get; set; }
+        public string LinkConfirm { get; set; }
+        public string LinkCancel { get; set; }
     }
 }

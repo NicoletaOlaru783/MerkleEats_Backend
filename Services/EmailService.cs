@@ -27,8 +27,8 @@ namespace MerkleKitchenApp_V2.Services
 
         public bool SendConfirmOrderEmail(string email, string UID, string orderType, List<OrderItemCreateDto> orderItem)
         {
-            var linkConfirm = "http://localhost:8080/orderConfirmed/o/" + UID;
-            var linkCancel = "http://localhost:8080/OrderCancelled/o/" + UID;
+            var linkConfirm = _appSettings.LinkConfirm + UID;
+            var linkCancel = _appSettings.LinkCancel + UID;
             int index = email.IndexOf('.');
             var firstName = email.Substring(0, index).ToUpper();
             //firstName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(firstName.ToLower());
