@@ -146,6 +146,13 @@ namespace MerkleKitchenApp_V2
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors(builder => builder
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .SetIsOriginAllowed((host) => true)
+                .AllowCredentials()
+            );
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -163,14 +170,9 @@ namespace MerkleKitchenApp_V2
                 options.SwaggerEndpoint("/swagger/MerkleKitchenAPITv/swagger.json", "Merkle Kitchen API TV");
                 options.RoutePrefix = "";
             });
-
+            
             app.UseRouting();
-            app.UseCors(builder => builder
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .SetIsOriginAllowed((host) => true)
-                .AllowCredentials()
-            );
+            
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
