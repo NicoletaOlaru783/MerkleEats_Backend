@@ -41,7 +41,10 @@ namespace MerkleKitchenApp_V2
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors();
+            services.AddCors(options => options.AddPolicy("ApiCorsPolicy", builder =>
+            {
+                builder.WithOrigins("http://localhost:8080", "https://kitchenappfrontend.merkleinc.agency").AllowAnyMethod().AllowAnyHeader();
+            }));
 
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -146,12 +149,7 @@ namespace MerkleKitchenApp_V2
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseCors(builder => builder
-                .AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .SetIsOriginAllowed((host) => true)
-            );
+            app.UseCors("ApiCorsPolicy");
 
             if (env.IsDevelopment())
             {
