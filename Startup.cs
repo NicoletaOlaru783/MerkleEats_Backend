@@ -147,10 +147,10 @@ namespace MerkleKitchenApp_V2
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseCors(builder => builder
+                .AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .SetIsOriginAllowed((host) => true)
-                .AllowCredentials()
             );
 
             if (env.IsDevelopment())
