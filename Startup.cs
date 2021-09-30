@@ -41,6 +41,13 @@ namespace MerkleKitchenApp_V2
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins",
+                    builder => builder.AllowAnyOrigin()
+                                        .AllowAnyMethod()
+                                        .AllowAnyHeader());
+            });
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<IUserRepository, UserRepository>();
@@ -165,10 +172,7 @@ namespace MerkleKitchenApp_V2
             });
 
             app.UseRouting();
-            app.UseCors(x => x
-             .AllowAnyOrigin()
-             .AllowAnyMethod()
-             .AllowAnyHeader());
+            app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
 
