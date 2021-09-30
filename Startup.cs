@@ -150,9 +150,7 @@ namespace MerkleKitchenApp_V2
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseHttpsRedirection();
-
+                        
             app.UseSwagger();
 
             app.UseSwaggerUI(options=> {
@@ -173,6 +171,7 @@ namespace MerkleKitchenApp_V2
                 .SetIsOriginAllowed((host) => true)
                 .AllowCredentials()
             );
+            app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
 
