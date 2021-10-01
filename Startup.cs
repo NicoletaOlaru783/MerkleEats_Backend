@@ -47,6 +47,7 @@ namespace MerkleKitchenApp_V2
             }));
 
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddHealthChecks().AddDbContextCheck<ApplicationDbContext>();
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
@@ -153,9 +154,10 @@ namespace MerkleKitchenApp_V2
 
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+               
             }
-                        
+            app.UseDeveloperExceptionPage();
+
             app.UseSwagger();
 
             app.UseSwaggerUI(options=> {
@@ -178,6 +180,7 @@ namespace MerkleKitchenApp_V2
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/Health");
             });
         }
     }
