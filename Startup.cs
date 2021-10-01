@@ -43,7 +43,7 @@ namespace MerkleKitchenApp_V2
         {
             services.AddCors(options => options.AddPolicy("ApiCorsPolicy", builder =>
             {
-                builder.WithOrigins("http://localhost:8080", "https://kitchenappfrontend.merkleinc.agency").AllowAnyMethod().AllowAnyHeader();
+                builder.WithOrigins("http://localhost:8082", "https://kitchenappfrontend.merkleinc.agency").AllowAnyMethod().AllowAnyHeader();
             }));
 
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
