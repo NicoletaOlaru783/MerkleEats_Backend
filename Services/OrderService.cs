@@ -45,7 +45,7 @@ namespace MerkleKitchenApp_V2.Services
         public async Task<Order> CreateAsync(OrderCreateDto order)
         {
             var result = _mapper.Map<Order>(order);
-            result.Price = 0;
+            result.Price = 50;
             result.Status = "New";
             result.CreatedAt = DateTime.Now;
             var guid = Guid.NewGuid().ToString();
