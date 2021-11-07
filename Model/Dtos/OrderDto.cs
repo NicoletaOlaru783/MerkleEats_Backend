@@ -17,6 +17,7 @@ namespace MerkleKitchenApp_V2.Model.Dtos
         public string Email { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? ConfirmedAt { get; set; }
+        public DateTime? ReminderTime { get; set; }
 
         ////Foreign key to User
         //public int UserId { get; set; }

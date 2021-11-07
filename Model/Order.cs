@@ -17,6 +17,7 @@ namespace MerkleKitchenApp_V2.Model
         public string Status { get; set; }
         public string UserComment { get; set; }
         public decimal Price { get; set; }
+        public DateTime? ReminderTime { get; set; }
         public string KitchenComment { get; set; }
         public DateTime? CreatedAt { get; set; }
         public string Email { get; set; }

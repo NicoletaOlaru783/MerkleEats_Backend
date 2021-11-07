@@ -67,25 +67,47 @@ namespace MerkleKitchenApp_V2.Services
 
         public bool SendOrderEmail(List<EmailMultipleRecipientsDto> recipients, int type)
         {
-            string id = "d-734381b76c654b3ebdfddf5d3897bd03";
-            if (type == 1)
+            string id = "d-a1a8e7b79afb4078911ff48da26486dd";
+            //If order is type = 0, accepted, then schedule aslo a reminder
+            if (type == 0)
             {
-                id = "d-a1a8e7b79afb4078911ff48da26486dd";
+                id = "d-734381b76c654b3ebdfddf5d3897bd03";
+
+                foreach (var obj in recipients)
+                {
+                    if(obj.ReminderTime != null)
+                    {
+                        int index = obj.Recipient.IndexOf('.');
+                        var firstName = obj.Recipient.Substring(0, index).ToUpper();
+                        long reminderTime = ((DateTimeOffset)obj.ReminderTime).ToUnixTimeSeconds(); ;
+
+                        var client = new RestClient("https://api.sendgrid.com/v3/mail/send");
+                        var request = new RestRequest(Method.POST);
+                        request.AddHeader("content-type", "application/json");
+                        request.AddHeader("authorization", "Bearer " + _appSettings.ApiKey);
+                        request.AddParameter("application/json", "{\"send_at\":" + reminderTime + ",\"from\":{\"email\":\"Merkle@kitchen.merkleinc.agency\",\"name\":\"Merkle Kitchen DK\"}, \"reply_to\":{\"email\":\"dk.canteen@emea.merkleinc.com\",\"name\":\"Merkle Kitchen DK\"} ,\"personalizations\":[{\"to\":[{\"email\":  \"" + obj.Recipient + "\" }],\"dynamic_template_data\":{\"firstName\":\"" + firstName + "\"}}],\"template_id\":\"d-f36ec630851045dca1d05f3d883d0e00\"}", ParameterType.RequestBody);
+                        client.Execute(request);
+                    }
+                    
+                }
             }
 
+            //Order Update email: email order accepted or rejected based on type
             foreach (var obj in recipients)
             {
                 int index = obj.Recipient.IndexOf('.');
                 var firstName = obj.Recipient.Substring(0, index).ToUpper();
 
+
                 var client = new RestClient("https://api.sendgrid.com/v3/mail/send");
                 var request = new RestRequest(Method.POST);
                 request.AddHeader("content-type", "application/json");
                 request.AddHeader("authorization", "Bearer " + _appSettings.ApiKey);
-                request.AddParameter("application/json", "{\"from\":{\"email\":\"Merkle@kitchen.merkleinc.agency\",\"name\":\"Merkle Kitchen DK\"}, \"reply_to\":{\"email\":\"dk.canteen@emea.merkleinc.com\",\"name\":\"Merkle Kitchen DK\"},\"personalizations\":[{\"to\":[{\"email\":  \"" + obj.Recipient + "\" }],\"dynamic_template_data\":{\"firstName\":\"" + firstName + "\"}}],\"template_id\":\"" + id + "\"}", ParameterType.RequestBody);
+                request.AddParameter("application/json", "{\"from\":{\"email\":\"Merkle@kitchen.merkleinc.agency\",\"name\":\"Merkle Kitchen DK\"}, \"reply_to\":{\"email\":\"dk.canteen@emea.merkleinc.com\",\"name\":\"Merkle Kitchen DK\"},\"personalizations\":[{\"to\":[{\"email\":  \"" + obj.Recipient + "\" }],\"dynamic_template_data\":{\"firstName\":\"" + firstName + "\",\"price\":\"" + obj.Price + "\", \"reminderTime\":\"" + obj.ReminderTime + "\"}}],\"template_id\":\"" + id + "\"}", ParameterType.RequestBody);
                 client.Execute(request);
             }
             return true;
         }
+
     }
 }

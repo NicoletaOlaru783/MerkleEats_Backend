@@ -11,5 +11,6 @@ namespace MerkleKitchenApp_V2.Model.Dtos
         public string DeliveryType { get; set; }        
         public string UserComment { get; set; }
         public string Email { get; set; }
+        public DateTime? ReminderTime { get; set; }
     }
 }
